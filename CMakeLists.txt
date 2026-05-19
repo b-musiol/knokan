@@ -2,15 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project(KnoKan)
 
-add_library(KnoKan
-  src/KnoKan.cpp
-  src/Core.cpp
-)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-target_compile_features(KnoKan PUBLIC cxx_std_20)
 
 include(FetchContent)
 
@@ -24,7 +17,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_executable(RunTests_KnoKan tests/KnoKan_test.cpp)
-target_link_libraries(RunTests_KnoKan KnoKan GTest::gtest_main)
+target_link_libraries(RunTests_KnoKan GTest::gtest_main)
 target_compile_features(RunTests_KnoKan PUBLIC cxx_std_20)
 
 

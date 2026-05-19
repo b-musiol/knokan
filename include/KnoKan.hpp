@@ -1,7 +1,7 @@
 /**
  * KnoKan
  * Graph Library.
- * Public Header
+ * Main Header
  *
  * Author: Bartek Musiol (bmusiol@proton.me)
  *
@@ -11,8 +11,7 @@
 #ifndef _KNOKAN_HPP
 #define _KNOKAN_HPP
 
-namespace KnoKan {
-
-}
+#include "graphs/DirectedGraph.hpp"
+#include "graphs/UndirectedGraph.hpp"
 
 #endif // _KNOKAN_HPP
