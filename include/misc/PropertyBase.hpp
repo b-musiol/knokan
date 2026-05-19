@@ -21,6 +21,14 @@ class PropertyBase
     virtual double get_weight() const = 0;
 };
 
+class UniWeightProperty : public KnoKan::PropertyBase
+{
+    double get_weight() const override
+    {
+        return 1.0;
+    }
+};
+
 } // namespace KnoKan
 
 #endif // _KNOKAN_PROPERTYBASE_HPP
