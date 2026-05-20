@@ -13,12 +13,15 @@
 
 #include "ProtoGraph.hpp"
 
+/*=========================================================================
+ * Declaration
+ */
 namespace KnoKan
 {
 
 template <IntegralOrString NodeID_T,
-          std::derived_from<PropertyBase> Node_Property_T,
-          std::derived_from<PropertyBase> Edge_Property_T>
+          std::derived_from<Property::Base> Node_Property_T,
+          std::derived_from<Property::Base> Edge_Property_T>
 class DirectedGraph
     : public KnoKan::ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T>
 {
@@ -31,20 +34,23 @@ class DirectedGraph
      */
     bool add_edge(const NodeID_T &from_node_id,
                   const NodeID_T &to_node_id,
-                  Edge_Property_T &edge_property) override;
+                  Edge_Property_T edge_property) override;
 };
 
 } // namespace KnoKan
 
+/*=========================================================================
+ * Definition
+ */
 namespace KnoKan
 {
 template <IntegralOrString NodeID_T,
-          std::derived_from<PropertyBase> Node_Property_T,
-          std::derived_from<PropertyBase> Edge_Property_T>
+          std::derived_from<Property::Base> Node_Property_T,
+          std::derived_from<Property::Base> Edge_Property_T>
 bool DirectedGraph<NodeID_T, Node_Property_T, Edge_Property_T>::add_edge(
     const NodeID_T &from_node_id,
     const NodeID_T &to_node_id,
-    Edge_Property_T &edge_property)
+    Edge_Property_T edge_property)
 {
     // To add an edge, we define that nodes must exist first. No implicit
     // adding of nodes, because nodes need to have their properties.
@@ -62,7 +68,7 @@ bool DirectedGraph<NodeID_T, Node_Property_T, Edge_Property_T>::add_edge(
             this->adjacency_map.at(from_node_id).insert(to_node_id);
             // Also adding the edge property
             this->edge_properties[Edge(from_node_id, to_node_id)] =
-                edge_property;
+                std::move(edge_property);
             return true;
         }
         else // (this->adjacency_map.find(to_node_id) ==

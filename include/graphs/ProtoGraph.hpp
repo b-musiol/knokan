@@ -17,6 +17,7 @@
 
 #include <set>
 #include <unordered_map>
+#include <variant>
 
 /*=========================================================================
  * Declaration
@@ -25,8 +26,8 @@ namespace KnoKan
 {
 
 template <IntegralOrString NodeID_T,
-          std::derived_from<PropertyBase> Node_Property_T,
-          std::derived_from<PropertyBase> Edge_Property_T>
+          std::derived_from<Property::Base> Node_Property_T,
+          std::derived_from<Property::Base> Edge_Property_T>
 class ProtoGraph
 {
   public:
@@ -34,7 +35,7 @@ class ProtoGraph
     {
     }
 
-  protected:
+  public:
     /**
      * Stores the adjacency map showing if a Node ID is pointing at another.
      * This is implicitly directed.
@@ -50,13 +51,14 @@ class ProtoGraph
     std::unordered_map<Edge<NodeID_T>, Edge_Property_T, EdgeHash<NodeID_T>>
         edge_properties;
 
+    // Builders
   public:
     /**
      * Adds a node with a `node_id` into the graph if it does not already
      * exist. Attaches the `node_property` to it. If a node was added that way,
      * returns `true`, otherwise (so nothing happened) it returns `false`.
      */
-    bool add_node(const NodeID_T &node_id, Node_Property_T &node_property);
+    bool add_node(const NodeID_T &node_id, Node_Property_T node_property);
 
     /**
      * Adds an edge `from_node_id` `to_node_id` and attaches an
@@ -65,8 +67,21 @@ class ProtoGraph
      */
     virtual bool add_edge(const NodeID_T &from_node_id,
                           const NodeID_T &to_node_id,
-                          Edge_Property_T &edge_property) = 0;
+                          Edge_Property_T edge_property) = 0;
 
+    // Getters
+  public:
+    /**
+     * Gets the weight of a node.
+     */
+    double get_node_weight(const NodeID_T &node_id);
+    /**
+     * Gets the weight of an edge.
+     */
+    double get_edge_weight(const Edge<NodeID_T> &edge);
+
+    // Algorithms
+  public:
   public:
     /**
      * Gets all nodes in the graph as a vector of Node IDs.
@@ -86,15 +101,15 @@ class ProtoGraph
 namespace KnoKan
 {
 template <IntegralOrString NodeID_T,
-          std::derived_from<PropertyBase> Node_Property_T,
-          std::derived_from<PropertyBase> Edge_Property_T>
+          std::derived_from<Property::Base> Node_Property_T,
+          std::derived_from<Property::Base> Edge_Property_T>
 bool ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T>::add_node(
     const NodeID_T &node_id,
-    Node_Property_T &node_property)
+    Node_Property_T node_property)
 {
     if (adjacency_map.find(node_id) == adjacency_map.end())
     {
-        node_properties[node_id] = node_property;
+        node_properties[node_id] = std::move(node_property);
         adjacency_map[node_id]   = std::set<NodeID_T>();
         return true;
     }
@@ -105,8 +120,8 @@ bool ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T>::add_node(
 }
 
 template <IntegralOrString NodeID_T,
-          std::derived_from<PropertyBase> Node_Property_T,
-          std::derived_from<PropertyBase> Edge_Property_T>
+          std::derived_from<Property::Base> Node_Property_T,
+          std::derived_from<Property::Base> Edge_Property_T>
 std::vector<NodeID_T> ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T>::
     get_all_nodes()
 {
@@ -121,8 +136,8 @@ std::vector<NodeID_T> ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T>::
 }
 
 template <IntegralOrString NodeID_T,
-          std::derived_from<PropertyBase> Node_Property_T,
-          std::derived_from<PropertyBase> Edge_Property_T>
+          std::derived_from<Property::Base> Node_Property_T,
+          std::derived_from<Property::Base> Edge_Property_T>
 std::vector<Edge<NodeID_T>> ProtoGraph<NodeID_T,
                                        Node_Property_T,
                                        Edge_Property_T>::get_all_edges()
@@ -135,6 +150,24 @@ std::vector<Edge<NodeID_T>> ProtoGraph<NodeID_T,
     }
 
     return all_edges;
+}
+
+template <IntegralOrString NodeID_T,
+          std::derived_from<Property::Base> Node_Property_T,
+          std::derived_from<Property::Base> Edge_Property_T>
+double ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T>::get_node_weight(
+    const NodeID_T &node_id)
+{
+    return node_properties.at(node_id).get_weight();
+}
+
+template <IntegralOrString NodeID_T,
+          std::derived_from<Property::Base> Node_Property_T,
+          std::derived_from<Property::Base> Edge_Property_T>
+double ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T>::get_edge_weight(
+    const Edge<NodeID_T> &edge)
+{
+    return edge_properties.at(edge).get_weight();
 }
 
 } // namespace KnoKan

@@ -20,8 +20,7 @@ namespace KnoKan
 
 template <typename T>
 concept StringLike = std::same_as<std::remove_cvref_t<T>, std::string> ||
-                     std::same_as<std::remove_cvref_t<T>, std::string_view> ||
-                     std::convertible_to<T, const char *>;
+                     std::same_as<std::remove_cvref_t<T>, std::string_view>;
 
 template <typename T>
 concept IntegralOrString = std::integral<T> || StringLike<T>;
