@@ -15,7 +15,11 @@ template <IntegralOrString NodeID_T> struct Edge
     NodeID_T from;
     NodeID_T to;
 
-    bool operator==(const Edge &) const = default;
+    bool operator==(const Edge &) const                  = default;
+    std::strong_ordering operator<=>(const Edge &) const = default;
+    Edge(NodeID_T from, NodeID_T to) : from(from), to(to)
+    {
+    }
 };
 
 template <IntegralOrString NodeID_T> struct EdgeHash

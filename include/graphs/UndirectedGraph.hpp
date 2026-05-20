@@ -16,10 +16,77 @@
 namespace KnoKan
 {
 
-template <IntegralOrString NodeID_T, std::derived_from<PropertyBase> Property_T>
-class UndirectedGraph : public KnoKan::ProtoGraph<NodeID_T, Property_T>
+template <IntegralOrString NodeID_T,
+          std::derived_from<PropertyBase> Node_Property_T,
+          std::derived_from<PropertyBase> Edge_Property_T>
+class UndirectedGraph
+    : public KnoKan::ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T>
 {
+  public:
+    /**
+     * Adds an undirected edge `from_node_id` `to_node_id` - so two edges
+     * actually - and attaches an `edge_property`. If a node was added that way,
+     * returns `true`, otherwise (so nothing happened) it returns `false`. This
+     * method can be used to overwrite the edge property with a different
+     * entry.
+     */
+    bool add_edge(const NodeID_T &from_node_id,
+                  const NodeID_T &to_node_id,
+                  Edge_Property_T &edge_property) override;
 };
+
+} // namespace KnoKan
+
+namespace KnoKan
+{
+template <IntegralOrString NodeID_T,
+          std::derived_from<PropertyBase> Node_Property_T,
+          std::derived_from<PropertyBase> Edge_Property_T>
+bool UndirectedGraph<NodeID_T, Node_Property_T, Edge_Property_T>::add_edge(
+    const NodeID_T &from_node_id,
+    const NodeID_T &to_node_id,
+    Edge_Property_T &edge_property)
+{
+    // To add an edge, we define that nodes must exist first. No implicit
+    // adding of nodes, because nodes need to have their properties.
+    // A node existing is equivalent to the entry in the adjacency map
+    // existing, even if it is empty. So at first we check the existence of
+    // both nodes
+    if (this->adjacency_map.find(from_node_id) != this->adjacency_map.end())
+    {
+        // The "from" node exists at this point
+        if (this->adjacency_map.find(to_node_id) != this->adjacency_map.end())
+        {
+            // The "to" node exists as well at this point.
+            // Thus we can add the edge between existing nodes
+            // This is undirected, so we add it in both directions
+            this->adjacency_map.at(from_node_id).insert(to_node_id);
+            this->adjacency_map.at(to_node_id).insert(from_node_id);
+            // Also adding the edge property
+            this->edge_properties[Edge(from_node_id, to_node_id)] =
+                edge_property;
+            // Both directions, because of undirected edges. This increases the
+            // memory complexity but makes the computational complexity lower
+            // in algorithms.
+            this->edge_properties[Edge(to_node_id, from_node_id)] =
+                edge_property;
+            return true;
+        }
+        else // (this->adjacency_map.find(to_node_id) ==
+             // this->adjacency_map.end)
+        {
+            // The "to" node does not exist at this point. So we refuse to add
+            // the edge.
+            return false;
+        }
+    }
+    else // (this->adjacency_map.find(from_node_id) == this->adjacency_map.end)
+    {
+        // The "from" node does not exist at this point. So we refuse to add
+        // the edge.
+        return false;
+    }
+}
 
 } // namespace KnoKan
 
