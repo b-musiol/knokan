@@ -11,6 +11,7 @@
 #define KNOKAN_DIRECTED_GRAPH
 #define KNOKAN_UNDIRECTED_GRAPH
 #define KNOKAN_ALGORITHM_DIJKSTRA
+#define KNOKAN_ALGORITHM_TARJAN
 #include "../include/KnoKan.hpp"
 #include <format>
 #include <gtest/gtest.h>
@@ -311,8 +312,7 @@ TEST(KnoKan_UndirectedGraph, int_dijkstra)
     }
 
     KnoKan::Algorithm::Dijkstra::Result_umap<int> dijkstra_result =
-        KnoKan::Algorithm::Dijkstra::run<int, SimpleWeight, SimpleWeight>(pg,
-                                                                          2);
+        KnoKan::Algorithm::Dijkstra::run(pg, 2);
     for (auto &[node, result] : dijkstra_result)
     {
         switch (node)
@@ -367,11 +367,7 @@ TEST(KnoKan_UndirectedGraph, int_dijkstra_avoid_edge)
     }
 
     KnoKan::Algorithm::Dijkstra::Result_umap<int> dijkstra_result =
-        KnoKan::Algorithm::Dijkstra::run<int, SimpleWeight, SimpleWeight>(
-            pg,
-            2,
-            {},
-            {KnoKan::Edge<int>(1, 7)});
+        KnoKan::Algorithm::Dijkstra::run(pg, 2, {}, {KnoKan::Edge<int>(1, 7)});
     for (auto &[node, result] : dijkstra_result)
     {
         switch (node)
@@ -431,9 +427,7 @@ TEST(KnoKan_UndirectedGraph, int_dijkstra_avoid_node)
     }
 
     KnoKan::Algorithm::Dijkstra::Result_umap<int> dijkstra_result =
-        KnoKan::Algorithm::Dijkstra::run<int, SimpleWeight, SimpleWeight>(pg,
-                                                                          2,
-                                                                          {1});
+        KnoKan::Algorithm::Dijkstra::run(pg, 2, {1});
     for (auto &[node, result] : dijkstra_result)
     {
         switch (node)
@@ -489,11 +483,12 @@ TEST(KnoKan_UndirectedGraph, int_dijkstra_avoid_node_and_edge)
     }
 
     KnoKan::Algorithm::Dijkstra::Result_umap<int> dijkstra_result =
-        KnoKan::Algorithm::Dijkstra::run<int, SimpleWeight, SimpleWeight>(
+        KnoKan::Algorithm::Dijkstra::run(
             pg,
             2,
             {1},
-            KnoKan::bidirectionalize<int>({KnoKan::Edge<int>(-4, 2)}));
+            KnoKan::bidirectionalize<int>(
+                KnoKan::uset_of_edges<int>{KnoKan::Edge<int>(-4, 2)}));
     for (auto &[node, result] : dijkstra_result)
     {
         switch (node)
@@ -525,4 +520,91 @@ TEST(KnoKan_UndirectedGraph, int_dijkstra_avoid_node_and_edge)
 
     std::vector<int> expected_path = {2, 3, -4, 7};
     EXPECT_EQ(path, expected_path);
+}
+
+TEST(KnoKan_UndirectedGraph, int_tarjan)
+{
+    KnoKan::UndirectedGraph<int, UniWeight, UniWeight> pg;
+    std::unordered_set<int> expected_nodes{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    for (auto &value : expected_nodes)
+    {
+        EXPECT_TRUE(pg.add_node(value, UniWeight()));
+    }
+
+    std::list<KnoKan::Edge<int>> expected_edges{
+        {KnoKan::Edge<int>{1, 2}},
+        {KnoKan::Edge<int>{2, 3}},
+        {KnoKan::Edge<int>{3, 1}},
+        {KnoKan::Edge<int>{3, 4}},
+        {KnoKan::Edge<int>{4, 5}},
+        {KnoKan::Edge<int>{5, 6}},
+        {KnoKan::Edge<int>{4, 6}},
+        {KnoKan::Edge<int>{6, 7}},
+        {KnoKan::Edge<int>{7, 8}},
+        {KnoKan::Edge<int>{8, 9}},
+        {KnoKan::Edge<int>{7, 9}},
+
+    };
+    for (auto &edge : expected_edges)
+    {
+        EXPECT_TRUE(pg.add_edge(edge.from, edge.to));
+    }
+
+    auto expected_bridges = KnoKan::bidirectionalize(KnoKan::uset_of_edges<int>{
+        KnoKan::Edge<int>{3, 4},
+        KnoKan::Edge<int>{6, 7},
+    });
+
+    std::vector<KnoKan::Edge<int>> bridges = KnoKan::Algorithm::Tarjan::run(pg);
+    EXPECT_EQ(bridges.size() * 2, expected_bridges.size());
+    for (auto &bridge : bridges)
+    {
+        EXPECT_NE(expected_bridges.find(bridge), expected_bridges.end());
+    }
+    auto given_bridges = KnoKan::bidirectionalize(bridges);
+    auto given_bridges_uset =
+        KnoKan::uset_of_edges<int>(given_bridges.begin(), given_bridges.end());
+    EXPECT_EQ(expected_bridges, given_bridges_uset);
+}
+
+TEST(KnoKan_DirectedGraph, int_tarjan)
+{
+    KnoKan::DirectedGraph<int, UniWeight, UniWeight> pg;
+    std::unordered_set<int> expected_nodes{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    for (auto &value : expected_nodes)
+    {
+        EXPECT_TRUE(pg.add_node(value, UniWeight()));
+    }
+
+    std::list<KnoKan::Edge<int>> expected_edges{
+        {KnoKan::Edge<int>{1, 2}},
+        {KnoKan::Edge<int>{2, 3}},
+        {KnoKan::Edge<int>{3, 1}},
+        {KnoKan::Edge<int>{3, 4}},
+        {KnoKan::Edge<int>{4, 5}},
+        {KnoKan::Edge<int>{5, 6}},
+        {KnoKan::Edge<int>{6, 4}},
+        {KnoKan::Edge<int>{6, 7}},
+        {KnoKan::Edge<int>{7, 9}},
+        {KnoKan::Edge<int>{9, 8}},
+        {KnoKan::Edge<int>{8, 7}},
+
+    };
+    for (auto &edge : expected_edges)
+    {
+        EXPECT_TRUE(pg.add_edge(edge.from, edge.to));
+    }
+
+    std::vector<KnoKan::Edge<int>> expected_bridges = {
+        KnoKan::Edge<int>{3, 4},
+        KnoKan::Edge<int>{6, 7},
+    };
+
+    std::vector<KnoKan::Edge<int>> bridges = KnoKan::Algorithm::Tarjan::run(pg);
+    auto uset_expected_bridges =
+        KnoKan::uset_of_edges<int>(expected_bridges.begin(),
+                                   expected_bridges.end());
+    auto uset_bridges =
+        KnoKan::uset_of_edges<int>(bridges.begin(), bridges.end());
+    EXPECT_EQ(uset_expected_bridges, uset_bridges);
 }

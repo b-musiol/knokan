@@ -58,6 +58,15 @@ using uset_of_edges = std::unordered_set<Edge<NodeID_T>, EdgeHash<NodeID_T>>;
 template <IntegralOrString NodeID_T>
 uset_of_edges<NodeID_T> bidirectionalize(
     const uset_of_edges<NodeID_T> &edge_set);
+/**
+ * Returns a new `edge_vector`, where for all edges if only the edge a->b is
+ * encountered, the edge b->a is also added in. Does not change the original
+ * `edge_vector` in place. If duplicates exist, these are eliminated in the
+ * output vector.
+ */
+template <IntegralOrString NodeID_T>
+std::vector<Edge<NodeID_T>> bidirectionalize(
+    const std::vector<Edge<NodeID_T>> &edge_vector);
 
 } // namespace KnoKan
 
@@ -94,5 +103,15 @@ uset_of_edges<NodeID_T> bidirectionalize(
     return bidirectionalized;
 }
 
+template <IntegralOrString NodeID_T>
+std::vector<Edge<NodeID_T>> bidirectionalize(
+    const std::vector<Edge<NodeID_T>> &edge_vector)
+{
+    auto edge_set =
+        uset_of_edges<NodeID_T>(edge_vector.begin(), edge_vector.end());
+    auto bidirectionalized = bidirectionalize(edge_set);
+    return std::vector<Edge<NodeID_T>>(bidirectionalized.begin(),
+                                       bidirectionalized.end());
+}
 } // namespace KnoKan
 #endif // _KNOKAN_HASH_HPP

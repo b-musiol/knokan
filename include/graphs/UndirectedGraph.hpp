@@ -35,7 +35,7 @@ class UndirectedGraph
      */
     bool add_edge(const NodeID_T &from_node_id,
                   const NodeID_T &to_node_id,
-                  Edge_Property_T edge_property) override;
+                  Edge_Property_T edge_property = Edge_Property_T()) override;
 };
 
 } // namespace KnoKan

@@ -22,4 +22,8 @@
 #include "algorithms/Dijkstra.hpp"
 #endif
 
+#ifdef KNOKAN_ALGORITHM_TARJAN
+#include "algorithms/Tarjan.hpp"
+#endif
+
 #endif // _KNOKAN_HPP

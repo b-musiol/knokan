@@ -61,7 +61,7 @@ template <IntegralOrString NodeID_T,
           std::derived_from<Property::Base> Edge_Property_T>
 Algorithm::Dijkstra::Result_umap<NodeID_T> run(
     ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T> &graph,
-    const NodeID_T& start_node,
+    const NodeID_T &start_node,
     std::unordered_set<NodeID_T> avoid_nodes        = {},
     uset_of_edges<NodeID_T> avoid_edges             = uset_of_edges<NodeID_T>{},
     std::variant<std::monostate, NodeID_T> end_node = std::monostate());
@@ -102,7 +102,7 @@ template <IntegralOrString NodeID_T,
           std::derived_from<Property::Base> Edge_Property_T>
 Algorithm::Dijkstra::Result_umap<NodeID_T> run(
     ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T> &graph,
-    const NodeID_T& start_node,
+    const NodeID_T &start_node,
     std::unordered_set<NodeID_T> avoid_nodes,
     uset_of_edges<NodeID_T> avoid_edges,
     std::variant<std::monostate, NodeID_T> end_node)
@@ -227,51 +227,51 @@ std::vector<NodeID_T> cheapest_path(
     const NodeID_T &start_node,
     const NodeID_T &end_node)
 {
-        /**
-         * Initialize with an empty path.
-         */
-        std::vector<NodeID_T> cheapest_path;
+    /**
+     * Initialize with an empty path.
+     */
+    std::vector<NodeID_T> cheapest_path;
 
-        /**
-         * Test for reachability
-         */
-         
-        if (std::isinf(result.at(end_node).distance))
-        {
-            /**
-             * Unreachable, return an empty path
-             */
-            return cheapest_path;
-        }
-        
-        /**
-         * Begin with the end node and walk backwards
-         */
-        std::vector<NodeID_T> cheapest_path_reverse;
-        NodeID_T curr_node = end_node;
-        cheapest_path_reverse.push_back(curr_node);
-        while (curr_node != start_node)
-        {
-            curr_node = result.at(curr_node).predecessor;
-            cheapest_path_reverse.push_back(curr_node);
-        }
+    /**
+     * Test for reachability
+     */
 
+    if (std::isinf(result.at(end_node).distance))
+    {
         /**
-         * Reverse, since we want to output the path forwards, not
-         * backwards as we assembled it.
-         */
-        cheapest_path.reserve(cheapest_path_reverse.size());
-        for (auto it = cheapest_path_reverse.rbegin();
-             it != cheapest_path_reverse.rend();
-             it++)
-        {
-            cheapest_path.push_back(*it);
-        }
-
-        /**
-         * Done!
+         * Unreachable, return an empty path
          */
         return cheapest_path;
+    }
+
+    /**
+     * Begin with the end node and walk backwards
+     */
+    std::vector<NodeID_T> cheapest_path_reverse;
+    NodeID_T curr_node = end_node;
+    cheapest_path_reverse.push_back(curr_node);
+    while (curr_node != start_node)
+    {
+        curr_node = result.at(curr_node).predecessor;
+        cheapest_path_reverse.push_back(curr_node);
+    }
+
+    /**
+     * Reverse, since we want to output the path forwards, not
+     * backwards as we assembled it.
+     */
+    cheapest_path.reserve(cheapest_path_reverse.size());
+    for (auto it = cheapest_path_reverse.rbegin();
+         it != cheapest_path_reverse.rend();
+         it++)
+    {
+        cheapest_path.push_back(*it);
+    }
+
+    /**
+     * Done!
+     */
+    return cheapest_path;
 }
 
 } // namespace Dijkstra
