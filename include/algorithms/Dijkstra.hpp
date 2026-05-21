@@ -14,6 +14,7 @@
 #include "../misc/Edge.hpp"
 #include "../misc/concepts.hpp"
 
+#include <cmath>
 #include <limits>
 #include <queue>
 #include <unordered_map>
@@ -60,11 +61,24 @@ template <IntegralOrString NodeID_T,
           std::derived_from<Property::Base> Edge_Property_T>
 Algorithm::Dijkstra::Result_umap<NodeID_T> run(
     ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T> &graph,
-    NodeID_T start_node,
+    const NodeID_T& start_node,
     std::unordered_set<NodeID_T> avoid_nodes        = {},
     uset_of_edges<NodeID_T> avoid_edges             = uset_of_edges<NodeID_T>{},
     std::variant<std::monostate, NodeID_T> end_node = std::monostate());
 
+/**
+ * Returns the cheapest path between `start_node` and `end_node` as a vector of
+ * Node IDs passed through in order. This is based on a `result`, which is the
+ * output of Algorithm::Dijkstra::run(). Beware of the limitations imposed
+ * based on the parametrization of that instance of run(). This involves which
+ * node is the actual `start_node` as well as which nodes are eligible to be
+ * `end_node` (e.g. because of early termination or avoidance of nodes/edges).
+ */
+template <IntegralOrString NodeID_T>
+std::vector<NodeID_T> cheapest_path(
+    Algorithm::Dijkstra::Result_umap<NodeID_T> &result,
+    const NodeID_T &start_node,
+    const NodeID_T &end_node);
 } // namespace Dijkstra
 
 } // namespace Algorithm
@@ -88,7 +102,7 @@ template <IntegralOrString NodeID_T,
           std::derived_from<Property::Base> Edge_Property_T>
 Algorithm::Dijkstra::Result_umap<NodeID_T> run(
     ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T> &graph,
-    NodeID_T start_node,
+    const NodeID_T& start_node,
     std::unordered_set<NodeID_T> avoid_nodes,
     uset_of_edges<NodeID_T> avoid_edges,
     std::variant<std::monostate, NodeID_T> end_node)
@@ -205,6 +219,59 @@ Algorithm::Dijkstra::Result_umap<NodeID_T> run(
      * previous) is guaranteed to be correct.
      */
     return result;
+}
+
+template <IntegralOrString NodeID_T>
+std::vector<NodeID_T> cheapest_path(
+    Algorithm::Dijkstra::Result_umap<NodeID_T> &result,
+    const NodeID_T &start_node,
+    const NodeID_T &end_node)
+{
+        /**
+         * Initialize with an empty path.
+         */
+        std::vector<NodeID_T> cheapest_path;
+
+        /**
+         * Test for reachability
+         */
+         
+        if (std::isinf(result.at(end_node).distance))
+        {
+            /**
+             * Unreachable, return an empty path
+             */
+            return cheapest_path;
+        }
+        
+        /**
+         * Begin with the end node and walk backwards
+         */
+        std::vector<NodeID_T> cheapest_path_reverse;
+        NodeID_T curr_node = end_node;
+        cheapest_path_reverse.push_back(curr_node);
+        while (curr_node != start_node)
+        {
+            curr_node = result.at(curr_node).predecessor;
+            cheapest_path_reverse.push_back(curr_node);
+        }
+
+        /**
+         * Reverse, since we want to output the path forwards, not
+         * backwards as we assembled it.
+         */
+        cheapest_path.reserve(cheapest_path_reverse.size());
+        for (auto it = cheapest_path_reverse.rbegin();
+             it != cheapest_path_reverse.rend();
+             it++)
+        {
+            cheapest_path.push_back(*it);
+        }
+
+        /**
+         * Done!
+         */
+        return cheapest_path;
 }
 
 } // namespace Dijkstra

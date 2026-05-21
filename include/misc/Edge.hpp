@@ -3,7 +3,6 @@
 
 #include "concepts.hpp"
 #include <functional>
-#include <set>
 #include <unordered_set>
 
 /*=========================================================================
@@ -29,7 +28,12 @@ template <IntegralOrString NodeID_T> struct Edge
     /**
      * Swaps the Nodes `from` and `to` in place.
      */
-    void invert();
+    void invert_in_place();
+    /**
+     * Swaps the Nodes `from` and `to` as new object, leaves the original
+     * untouched.
+     */
+    Edge<NodeID_T> invert() const;
 };
 
 template <IntegralOrString NodeID_T> struct EdgeHash
@@ -52,7 +56,8 @@ using uset_of_edges = std::unordered_set<Edge<NodeID_T>, EdgeHash<NodeID_T>>;
  * `edge_set` in place.
  */
 template <IntegralOrString NodeID_T>
-uset_of_edges<NodeID_T> bidirectionalize(uset_of_edges<NodeID_T> &edge_set);
+uset_of_edges<NodeID_T> bidirectionalize(
+    const uset_of_edges<NodeID_T> &edge_set);
 
 } // namespace KnoKan
 
@@ -61,15 +66,22 @@ uset_of_edges<NodeID_T> bidirectionalize(uset_of_edges<NodeID_T> &edge_set);
  */
 namespace KnoKan
 {
-template <IntegralOrString NodeID_T> void Edge<NodeID_T>::invert()
+template <IntegralOrString NodeID_T> void Edge<NodeID_T>::invert_in_place()
 {
     auto tmp   = this->from;
     this->from = this->to;
     this->to   = tmp;
 }
+template <IntegralOrString NodeID_T>
+Edge<NodeID_T> Edge<NodeID_T>::invert() const
+{
+    Edge<NodeID_T> inverted{to, from};
+    return inverted;
+}
 
 template <IntegralOrString NodeID_T>
-uset_of_edges<NodeID_T> bidirectionalize(std::set<Edge<NodeID_T>> &edge_set)
+uset_of_edges<NodeID_T> bidirectionalize(
+    const uset_of_edges<NodeID_T> &edge_set)
 {
     uset_of_edges<NodeID_T> bidirectionalized;
 
