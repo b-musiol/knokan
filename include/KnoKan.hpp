@@ -26,4 +26,8 @@
 #include "algorithms/Tarjan.hpp"
 #endif
 
+#ifdef KNOKAN_ALGORITHM_DFS
+#include "algorithms/DFS.hpp"
+#endif
+
 #endif // _KNOKAN_HPP

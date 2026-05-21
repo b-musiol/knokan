@@ -12,6 +12,7 @@
 #define KNOKAN_UNDIRECTED_GRAPH
 #define KNOKAN_ALGORITHM_DIJKSTRA
 #define KNOKAN_ALGORITHM_TARJAN
+#define KNOKAN_ALGORITHM_DFS
 #include "../include/KnoKan.hpp"
 #include <format>
 #include <gtest/gtest.h>
@@ -607,4 +608,172 @@ TEST(KnoKan_DirectedGraph, int_tarjan)
     auto uset_bridges =
         KnoKan::uset_of_edges<int>(bridges.begin(), bridges.end());
     EXPECT_EQ(uset_expected_bridges, uset_bridges);
+}
+
+TEST(KnoKan_DirectedGraph, int_DFS)
+{
+    KnoKan::DirectedGraph<int, UniWeight, UniWeight> pg;
+    std::unordered_set<int> expected_nodes{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    for (auto &value : expected_nodes)
+    {
+        EXPECT_TRUE(pg.add_node(value, UniWeight()));
+    }
+
+    std::list<KnoKan::Edge<int>> expected_edges{
+        {KnoKan::Edge<int>{1, 2}},
+        {KnoKan::Edge<int>{2, 3}},
+        {KnoKan::Edge<int>{3, 1}},
+        {KnoKan::Edge<int>{4, 5}},
+        {KnoKan::Edge<int>{5, 6}},
+        {KnoKan::Edge<int>{6, 4}},
+        {KnoKan::Edge<int>{7, 9}},
+        {KnoKan::Edge<int>{9, 8}},
+        {KnoKan::Edge<int>{8, 7}},
+
+    };
+    for (auto &edge : expected_edges)
+    {
+        EXPECT_TRUE(pg.add_edge(edge.from, edge.to));
+    }
+
+    EXPECT_TRUE(KnoKan::Algorithm::DFS::path_exists(pg, 1, 3));
+    EXPECT_FALSE(KnoKan::Algorithm::DFS::path_exists(pg, 2, 6));
+
+    EXPECT_TRUE(pg.add_edge(3, 4));
+    EXPECT_TRUE(KnoKan::Algorithm::DFS::path_exists(pg, 2, 6));
+    EXPECT_FALSE(KnoKan::Algorithm::DFS::path_exists(pg, 6, 2));
+}
+
+TEST(KnoKan_UndirectedGraph, int_DFS)
+{
+    KnoKan::UndirectedGraph<int, UniWeight, UniWeight> pg;
+    std::unordered_set<int> expected_nodes{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    for (auto &value : expected_nodes)
+    {
+        EXPECT_TRUE(pg.add_node(value, UniWeight()));
+    }
+
+    std::list<KnoKan::Edge<int>> expected_edges{
+        {KnoKan::Edge<int>{1, 2}},
+        {KnoKan::Edge<int>{2, 3}},
+        {KnoKan::Edge<int>{3, 1}},
+        {KnoKan::Edge<int>{4, 5}},
+        {KnoKan::Edge<int>{5, 6}},
+        {KnoKan::Edge<int>{6, 4}},
+        {KnoKan::Edge<int>{7, 9}},
+        {KnoKan::Edge<int>{9, 8}},
+        {KnoKan::Edge<int>{8, 7}},
+
+    };
+    for (auto &edge : expected_edges)
+    {
+        EXPECT_TRUE(pg.add_edge(edge.from, edge.to));
+    }
+
+    EXPECT_TRUE(KnoKan::Algorithm::DFS::path_exists(pg, 1, 3));
+    EXPECT_FALSE(KnoKan::Algorithm::DFS::path_exists(pg, 2, 6));
+
+    EXPECT_TRUE(pg.add_edge(3, 4));
+    EXPECT_TRUE(KnoKan::Algorithm::DFS::path_exists(pg, 2, 6));
+    EXPECT_TRUE(KnoKan::Algorithm::DFS::path_exists(pg, 6, 2));
+}
+
+TEST(KnoKan_DirectedGraph, string_DFS)
+{
+    KnoKan::DirectedGraph<std::string, UniWeight, UniWeight> pg;
+    std::unordered_set<std::string> expected_nodes{std::string("1"),
+                                                   std::string("2"),
+                                                   std::string("3"),
+                                                   std::string("4"),
+                                                   std::string("5"),
+                                                   std::string("6"),
+                                                   std::string("7"),
+                                                   std::string("8"),
+                                                   std::string("9")};
+    for (auto &value : expected_nodes)
+    {
+        EXPECT_TRUE(pg.add_node(value, UniWeight()));
+    }
+
+    std::list<KnoKan::Edge<std::string>> expected_edges{
+        {KnoKan::Edge<std::string>{std::string("1"), std::string("2")}},
+        {KnoKan::Edge<std::string>{std::string("2"), std::string("3")}},
+        {KnoKan::Edge<std::string>{std::string("3"), std::string("1")}},
+        {KnoKan::Edge<std::string>{std::string("4"), std::string("5")}},
+        {KnoKan::Edge<std::string>{std::string("5"), std::string("6")}},
+        {KnoKan::Edge<std::string>{std::string("6"), std::string("4")}},
+        {KnoKan::Edge<std::string>{std::string("7"), std::string("9")}},
+        {KnoKan::Edge<std::string>{std::string("9"), std::string("8")}},
+        {KnoKan::Edge<std::string>{std::string("8"), std::string("7")}},
+
+    };
+    for (auto &edge : expected_edges)
+    {
+        EXPECT_TRUE(pg.add_edge(edge.from, edge.to));
+    }
+
+    EXPECT_TRUE(KnoKan::Algorithm::DFS::path_exists(pg,
+                                                    std::string("1"),
+                                                    std::string("3")));
+    EXPECT_FALSE(KnoKan::Algorithm::DFS::path_exists(pg,
+                                                     std::string("2"),
+                                                     std::string("6")));
+
+    EXPECT_TRUE(pg.add_edge(std::string("3"), std::string("4")));
+    EXPECT_TRUE(KnoKan::Algorithm::DFS::path_exists(pg,
+                                                    std::string("2"),
+                                                    std::string("6")));
+    EXPECT_FALSE(KnoKan::Algorithm::DFS::path_exists(pg,
+                                                     std::string("6"),
+                                                     std::string("2")));
+}
+
+TEST(KnoKan_UndirectedGraph, string_DFS)
+{
+    KnoKan::UndirectedGraph<std::string, UniWeight, UniWeight> pg;
+    std::unordered_set<std::string> expected_nodes{std::string("1"),
+                                                   std::string("2"),
+                                                   std::string("3"),
+                                                   std::string("4"),
+                                                   std::string("5"),
+                                                   std::string("6"),
+                                                   std::string("7"),
+                                                   std::string("8"),
+                                                   std::string("9")};
+    for (auto &value : expected_nodes)
+    {
+        EXPECT_TRUE(pg.add_node(value, UniWeight()));
+    }
+
+    std::list<KnoKan::Edge<std::string>> expected_edges{
+        {KnoKan::Edge<std::string>{std::string("1"), std::string("2")}},
+        {KnoKan::Edge<std::string>{std::string("2"), std::string("3")}},
+        {KnoKan::Edge<std::string>{std::string("3"), std::string("1")}},
+        {KnoKan::Edge<std::string>{std::string("4"), std::string("5")}},
+        {KnoKan::Edge<std::string>{std::string("5"), std::string("6")}},
+        {KnoKan::Edge<std::string>{std::string("6"), std::string("4")}},
+        {KnoKan::Edge<std::string>{std::string("7"), std::string("9")}},
+        {KnoKan::Edge<std::string>{std::string("9"), std::string("8")}},
+        {KnoKan::Edge<std::string>{std::string("8"), std::string("7")}},
+
+    };
+    for (auto &edge : expected_edges)
+    {
+        EXPECT_TRUE(pg.add_edge(edge.from, edge.to));
+    }
+
+    EXPECT_TRUE(KnoKan::Algorithm::DFS::path_exists(pg,
+                                                    std::string("1"),
+                                                    std::string("3")));
+    EXPECT_FALSE(KnoKan::Algorithm::DFS::path_exists(pg,
+                                                     std::string("2"),
+                                                     std::string("6")));
+
+    EXPECT_TRUE(pg.add_edge(std::string("3"), std::string("4")));
+    EXPECT_TRUE(KnoKan::Algorithm::DFS::path_exists(pg,
+                                                    std::string("2"),
+                                                    std::string("6")));
+    EXPECT_TRUE(KnoKan::Algorithm::DFS::path_exists(pg,
+                                                    std::string("6"),
+                                                    std::string("2")));
 }
