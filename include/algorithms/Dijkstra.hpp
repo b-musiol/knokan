@@ -39,7 +39,7 @@ template <IntegralOrString NodeID_T> struct ResultPrimitive
 };
 
 template <IntegralOrString NodeID_T>
-using Result = std::unordered_map<NodeID_T, ResultPrimitive<NodeID_T>>;
+using Result_umap = std::unordered_map<NodeID_T, ResultPrimitive<NodeID_T>>;
 // typedef std::unordered_map<NodeID_T, ResultPrimitive<NodeID_T>> Result;
 
 /**
@@ -50,16 +50,19 @@ using Result = std::unordered_map<NodeID_T, ResultPrimitive<NodeID_T>>;
  * and `end_node` is reliable. The resulting weight of each path includes the
  * start and the final node weights. Post Processing is required if that is not
  * wished to be the case.
+ *
+ * NOTE: If `avoid_edges` are to be considered bidirectional (so if a->b is
+ * given, then b->a is also to be avoided), call
+ * `bidirectionalize(avoid_edges)` or specify both directions explicitly.
  */
 template <IntegralOrString NodeID_T,
           std::derived_from<Property::Base> Node_Property_T,
           std::derived_from<Property::Base> Edge_Property_T>
-Algorithm::Dijkstra::Result<NodeID_T> run(
+Algorithm::Dijkstra::Result_umap<NodeID_T> run(
     ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T> &graph,
     NodeID_T start_node,
-    std::unordered_set<NodeID_T> avoid_nodes = {},
-    std::unordered_set<Edge<NodeID_T>, EdgeHash<NodeID_T>> avoid_edges =
-        std::unordered_set<Edge<NodeID_T>, EdgeHash<NodeID_T>>{},
+    std::unordered_set<NodeID_T> avoid_nodes        = {},
+    uset_of_edges<NodeID_T> avoid_edges             = uset_of_edges<NodeID_T>{},
     std::variant<std::monostate, NodeID_T> end_node = std::monostate());
 
 } // namespace Dijkstra
@@ -83,16 +86,16 @@ namespace Dijkstra
 template <IntegralOrString NodeID_T,
           std::derived_from<Property::Base> Node_Property_T,
           std::derived_from<Property::Base> Edge_Property_T>
-Algorithm::Dijkstra::Result<NodeID_T> run(
+Algorithm::Dijkstra::Result_umap<NodeID_T> run(
     ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T> &graph,
     NodeID_T start_node,
     std::unordered_set<NodeID_T> avoid_nodes,
-    std::unordered_set<Edge<NodeID_T>, EdgeHash<NodeID_T>> avoid_edges,
+    uset_of_edges<NodeID_T> avoid_edges,
     std::variant<std::monostate, NodeID_T> end_node)
 {
     using distance         = double;
     bool abort_at_end_node = std::holds_alternative<NodeID_T>(end_node);
-    Algorithm::Dijkstra::Result<NodeID_T> result;
+    Algorithm::Dijkstra::Result_umap<NodeID_T> result;
 
     /**
      * Comparison lambda for pair of cost and node

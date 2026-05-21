@@ -13,17 +13,22 @@
 
 namespace KnoKan
 {
-namespace Property {
+namespace Property
+{
 
 class Base
 {
   public:
-    virtual ~Base()           = default;
+    virtual ~Base()                   = default;
     virtual double get_weight() const = 0;
 };
 namespace Predefined
 {
-    
+
+/**
+ * Node and Edge compatible property, where the `weight` is explicitly and
+ * mutably set.
+ */
 class SimpleWeight : public KnoKan::Property::Base
 {
   public:
@@ -41,6 +46,9 @@ class SimpleWeight : public KnoKan::Property::Base
     }
 };
 
+/**
+ * Node and Edge compatible property, where the weight is immutably set to 1.
+ */
 class UniWeight : public KnoKan::Property::Base
 {
   public:
@@ -50,6 +58,9 @@ class UniWeight : public KnoKan::Property::Base
     }
 };
 
+/**
+ * Node and Edge compatible property, where the weight is immutably set to 0.
+ */
 class NoWeight : public KnoKan::Property::Base
 {
   public:
@@ -58,8 +69,8 @@ class NoWeight : public KnoKan::Property::Base
         return 0.0;
     }
 };
-}
-}
+} // namespace Predefined
+} // namespace Property
 
 } // namespace KnoKan
 

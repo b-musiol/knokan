@@ -12,12 +12,12 @@
 #define _KNOKAN_PROTO_GRAPH_HPP
 
 #include "../misc/Edge.hpp"
-#include "../misc/PropertyBase.hpp"
+#include "../misc/Property.hpp"
 #include "../misc/concepts.hpp"
 
 #include <set>
 #include <unordered_map>
-#include <variant>
+
 
 /*=========================================================================
  * Declaration
