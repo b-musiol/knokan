@@ -57,7 +57,8 @@ class ProtoGraph
      * exist. Attaches the `node_property` to it. If a node was added that way,
      * returns `true`, otherwise (so nothing happened) it returns `false`.
      */
-    bool add_node(const NodeID_T &node_id, Node_Property_T node_property);
+    bool add_node(const NodeID_T &node_id,
+                  Node_Property_T node_property = Node_Property_T());
 
     /**
      * Adds an edge `from_node_id` `to_node_id` and attaches an

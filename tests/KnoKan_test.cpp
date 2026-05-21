@@ -777,3 +777,11 @@ TEST(KnoKan_UndirectedGraph, string_DFS)
                                                     std::string("6"),
                                                     std::string("2")));
 }
+
+TEST(KnoKan_UndirectedGraph, adding_empty_nodes)
+{
+    KnoKan::UndirectedGraph<std::string, UniWeight, UniWeight> pg;
+
+    EXPECT_TRUE(pg.add_node("a", UniWeight()));
+    EXPECT_TRUE(pg.add_node("b"));
+}
