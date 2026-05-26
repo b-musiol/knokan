@@ -68,6 +68,11 @@ class ProtoGraph
     virtual bool add_edge(const NodeID_T &from_node_id,
                           const NodeID_T &to_node_id,
                           Edge_Property_T edge_property) = 0;
+    /**
+     * Clears the entire graph, meaning the `adjacency_map`, the
+     * `node_properties` and the `edge_properties`.
+     */
+    void clear();
 
     // Getters
   public:
@@ -168,6 +173,16 @@ double ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T>::get_edge_weight(
     const Edge<NodeID_T> &edge)
 {
     return edge_properties.at(edge).get_weight();
+}
+
+template <IntegralOrString NodeID_T,
+          std::derived_from<Property::Base> Node_Property_T,
+          std::derived_from<Property::Base> Edge_Property_T>
+void ProtoGraph<NodeID_T, Node_Property_T, Edge_Property_T>::clear()
+{
+    adjacency_map.clear();
+    node_properties.clear();
+    edge_properties.clear();
 }
 
 } // namespace KnoKan

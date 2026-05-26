@@ -208,6 +208,90 @@ TEST(KnoKan_UndirectedGraph, int_Edges)
     EXPECT_EQ(expected_edges.size(), 0);
 }
 
+TEST(KnoKan_UndirectedGraph, int_clear)
+{
+    KnoKan::UndirectedGraph<int, UniWeight, UniWeight> pg;
+    UniWeight prop;
+    std::unordered_set<int> expected_nodes{1, 2, 3, 7, -4};
+    for (auto &value : expected_nodes)
+    {
+        EXPECT_TRUE(pg.add_node(value, prop));
+    }
+
+    std::set<KnoKan::Edge<int>> expected_edges{KnoKan::Edge<int>{1, 2},
+                                               KnoKan::Edge<int>{2, 3},
+                                               KnoKan::Edge<int>{1, 7},
+                                               KnoKan::Edge<int>{-4, 7}};
+    for (auto &[n1, n2] : expected_edges)
+    {
+        EXPECT_TRUE(pg.add_edge(n1, n2, prop));
+    }
+    EXPECT_FALSE(pg.add_edge(1, 6, prop));
+    EXPECT_FALSE(pg.add_edge(5, 2, prop));
+    EXPECT_TRUE(pg.add_edge(1, 2, prop));
+
+    expected_edges.insert(KnoKan::Edge<int>{2, 1});
+    expected_edges.insert(KnoKan::Edge<int>{3, 2});
+    expected_edges.insert(KnoKan::Edge<int>{7, 1});
+    expected_edges.insert(KnoKan::Edge<int>{7, -4});
+
+    auto all_edges_return = pg.get_all_edges();
+    EXPECT_EQ(all_edges_return.size(), expected_edges.size());
+    for (auto &edge_id : all_edges_return)
+    {
+        auto it = expected_edges.find(edge_id);
+        if (it != expected_edges.end())
+        {
+            expected_edges.erase(it);
+        }
+    }
+    EXPECT_EQ(expected_edges.size(), 0);
+    pg.clear();
+    EXPECT_EQ(pg.adjacency_map.size(), 0);
+    EXPECT_EQ(pg.node_properties.size(), 0);
+    EXPECT_EQ(pg.edge_properties.size(), 0);
+}
+
+TEST(KnoKan_DirectedGraph, int_clear)
+{
+    KnoKan::DirectedGraph<int, UniWeight, UniWeight> pg;
+    UniWeight prop;
+    std::unordered_set<int> expected_nodes{1, 2, 3, 7, -4};
+    for (auto &value : expected_nodes)
+    {
+        EXPECT_TRUE(pg.add_node(value, prop));
+    }
+
+    std::set<KnoKan::Edge<int>> expected_edges{KnoKan::Edge<int>{1, 2},
+                                               KnoKan::Edge<int>{2, 3},
+                                               KnoKan::Edge<int>{1, 7},
+                                               KnoKan::Edge<int>{-4, 7}};
+    for (auto &[n1, n2] : expected_edges)
+    {
+        EXPECT_TRUE(pg.add_edge(n1, n2, prop));
+    }
+    EXPECT_FALSE(pg.add_edge(1, 6, prop));
+    EXPECT_FALSE(pg.add_edge(5, 2, prop));
+    EXPECT_TRUE(pg.add_edge(1, 2, prop));
+
+    auto all_edges_return = pg.get_all_edges();
+    EXPECT_EQ(all_edges_return.size(), expected_edges.size());
+    for (auto &edge_id : all_edges_return)
+    {
+        auto it = expected_edges.find(edge_id);
+        if (it != expected_edges.end())
+        {
+            expected_edges.erase(it);
+        }
+    }
+    EXPECT_EQ(expected_edges.size(), 0);
+
+    pg.clear();
+    EXPECT_EQ(pg.adjacency_map.size(), 0);
+    EXPECT_EQ(pg.node_properties.size(), 0);
+    EXPECT_EQ(pg.edge_properties.size(), 0);
+}
+
 TEST(KnoKan_UndirectedGraph, int_get_weights)
 {
     KnoKan::UndirectedGraph<int, SimpleWeight, SimpleWeight> pg;
